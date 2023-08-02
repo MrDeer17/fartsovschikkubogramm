@@ -1,0 +1,15 @@
+name: fartsovschikkubogram
+version: '1.0'
+main: src.main.Fartsovschikkubogram
+api-version: 1.19
+depend: [CMI, PlayerPoints]
+commands:
+  market:
+    description: fartsovchik
+    usage: /<command>
+  marketFSet:
+    description: fartsovchik
+    usage: /<command>
+  marketReload:
+    description: fartsovchik
+    usage: /<command>
