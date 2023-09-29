@@ -14,6 +14,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -98,6 +99,7 @@ public class singleton {
         menu4 = processString(menu4);
 
         for (int i = 0; i < Messgaes.size(); i++) {
+            //Messgaes.set(i, processString(new String(Messgaes.get(i).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8)));
             Messgaes.set(i, processString(Messgaes.get(i)));
         }
         for (int i = 0; i < returer.size(); i++) {
@@ -142,6 +144,7 @@ public class singleton {
             String value = entry.getValue();
 
             // Обновление значения элемента
+            //Translations.put(key, processString(new String(value.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8)));
             Translations.put(key, processString(value));
         }
 
@@ -323,9 +326,7 @@ public class singleton {
             int readId = 0;
             Stream<String> lines = null;
             try {
-                lines = Files.lines(Paths.get(file + ""))
-                        .map(line -> line.split("\n"))
-                        .flatMap(Arrays::stream);
+                lines = Files.lines(Paths.get(file + ""));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -908,34 +909,32 @@ public class singleton {
                 }
             } //Если файл не создан
 
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split(":");
-                    if (parts.length == 2) {
-                        String key = parts[0];
-                        String value = parts[1];
-                        if (key.endsWith("_NULL")) {
-                            // Если ключ заканчивается на _NULL, то значение добавляется в карту ExplainNull
-                            key = key.replace("_NULL", "");
-                            ExplainNull.put(key, value);
-                        } else {
-                            // Иначе значение добавляется в карту Explain
-                            Explain.put(key, value);
-                        }
-                        if (key.equals("limit=0") || key.equals("items=0") || key.equals("items=0FS") || key.equals("items<64SS") ||
-                                key.equals("limit=0GA") || key.equals("limit=0OTIGA") || key.equals("items=0GA") || key.equals("items=0FSGA") ||
-                                key.equals("items<64SSGA") || key.equals("RewardRecievedGA") || key.equals("TradesUPD") || key.equals("LVLREQ")||
-                                key.equals("NEMoney") || key.equals("NEKubaks") || key.equals("MaxLR")) {
-                            // Если ключ соответствует одному из перечисленных, то значение добавляется в список Messages
-                            Messgaes.add(value);
-                        }
-                    }
-                }
+            try {
+                Files.lines(Paths.get(String.valueOf(file)))
+                        .forEach(line -> {
+                            String[] parts = line.split(":");
+                            if (parts.length == 2) {
+                                String key = parts[0];
+                                String value = parts[1];
+                                if (key.endsWith("_NULL")) {
+                                    key = key.replace("_NULL", "");
+                                    ExplainNull.put(key, value);
+                                } else {
+                                    Explain.put(key, value);
+                                }
+                                if (key.equals("limit=0") || key.equals("items=0") || key.equals("items=0FS") || key.equals("items<64SS")
+                                        || key.equals("limit=0GA") || key.equals("limit=0OTIGA") || key.equals("items=0GA") || key.equals("items=0FSGA")
+                                        || key.equals("items<64SSGA") || key.equals("RewardRecievedGA") || key.equals("TradesUPD") || key.equals("LVLREQ")
+                                        || key.equals("NEMoney") || key.equals("NEKubaks") || key.equals("MaxLR")) {
+                                    Messgaes.add(value);
+                                }
+                            }
+                        });
             } catch (IOException e) {
                 getLogger().log(Level.SEVERE, "Failed to read " + FileName, e);
             }
-        } else if (FileName == "translations.yml") {
+        }
+        else if (FileName == "translations.yml") {
             File file = new File("plugins/market/" + FileName);
             if (!file.exists()) {
                 try {
@@ -954,20 +953,18 @@ public class singleton {
                     throw new RuntimeException(e);
                 }
             } //Если файл не создан
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split(":");
-                    if (parts.length == 2) {
-                        if(!(parts[0].equalsIgnoreCase("DEFAULTCOLOR"))) {
-                            Translations.put(parts[0], parts[1]);
-                        }
-                        else {
-                            DEFCOLOR = parts[1];
-                        }
-
-                    }
-                }
+            try {
+                Files.lines(Paths.get(String.valueOf(file)))
+                        .forEach(line -> {
+                            String[] parts = line.split(":");
+                            if (parts.length == 2) {
+                                if (!parts[0].equalsIgnoreCase("DEFAULTCOLOR")) {
+                                    Translations.put(parts[0], parts[1]);
+                                } else {
+                                    DEFCOLOR = parts[1];
+                                }
+                            }
+                        });
             } catch (IOException e) {
                 getLogger().log(Level.SEVERE, "Failed to read " + FileName, e);
             }
