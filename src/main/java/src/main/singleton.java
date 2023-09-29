@@ -328,7 +328,7 @@ public class singleton {
             try {
                 lines = Files.lines(Paths.get(file + ""));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e);//
             }
             for (String line : lines.toArray(String[]::new)) {
                 String value = "";
